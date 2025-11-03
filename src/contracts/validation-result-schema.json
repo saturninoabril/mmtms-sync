@@ -1,0 +1,156 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://mattermost.com/schemas/tm-sync/validation-result.json",
+  "title": "Validation Result Schema",
+  "description": "Schema for validation command output",
+  "type": "object",
+  "properties": {
+    "totalTests": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Total number of tests validated"
+    },
+    "passedTests": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Number of tests that passed"
+    },
+    "failedTests": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Number of tests that failed"
+    },
+    "testResults": {
+      "type": "array",
+      "description": "Individual test results",
+      "items": {
+        "type": "object",
+        "properties": {
+          "filePath": {
+            "type": "string",
+            "description": "Test file path"
+          },
+          "testTitle": {
+            "type": "string",
+            "description": "Test title"
+          },
+          "passed": {
+            "type": "boolean",
+            "description": "Whether test passed validation"
+          },
+          "issues": {
+            "type": "array",
+            "description": "Validation issues found",
+            "items": {
+              "type": "object",
+              "properties": {
+                "severity": {
+                  "type": "string",
+                  "enum": ["error", "warning", "info"],
+                  "description": "Issue severity"
+                },
+                "category": {
+                  "type": "string",
+                  "enum": ["documentation", "action-steps", "verification-steps", "test-case-id", "test-title", "syntax"],
+                  "description": "Issue category"
+                },
+                "message": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Error message"
+                },
+                "suggestedFix": {
+                  "type": ["string", "null"],
+                  "description": "Suggested fix"
+                },
+                "filePath": {
+                  "type": "string",
+                  "description": "File path where issue occurred"
+                },
+                "lineNumber": {
+                  "type": ["number", "null"],
+                  "minimum": 1,
+                  "description": "Line number (if applicable)"
+                },
+                "errorCode": {
+                  "type": "string",
+                  "pattern": "^[A-Z]{3}_\\d{3}$",
+                  "description": "Error code (e.g., VAL_001)"
+                }
+              },
+              "required": ["severity", "category", "message", "filePath", "errorCode"]
+            }
+          },
+          "errorCount": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Number of errors"
+          },
+          "warningCount": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Number of warnings"
+          },
+          "infoCount": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Number of info messages"
+          }
+        },
+        "required": ["filePath", "testTitle", "passed", "issues", "errorCount", "warningCount", "infoCount"]
+      }
+    },
+    "summary": {
+      "type": "object",
+      "description": "Summary statistics",
+      "properties": {
+        "totalErrors": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Total errors across all tests"
+        },
+        "totalWarnings": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Total warnings across all tests"
+        },
+        "totalInfo": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Total info messages across all tests"
+        },
+        "passRate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Pass rate percentage (0-100)"
+        },
+        "commonIssueCategory": {
+          "type": ["string", "null"],
+          "enum": ["documentation", "action-steps", "verification-steps", "test-case-id", "test-title", "syntax", null],
+          "description": "Most common issue category"
+        },
+        "problemFiles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 5,
+          "description": "Files with most issues (top 5)"
+        }
+      },
+      "required": ["totalErrors", "totalWarnings", "totalInfo", "passRate", "problemFiles"]
+    },
+    "validatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Validation timestamp"
+    },
+    "duration": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Validation duration in milliseconds"
+    }
+  },
+  "required": ["totalTests", "passedTests", "failedTests", "testResults", "summary", "validatedAt", "duration"]
+}

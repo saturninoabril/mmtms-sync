@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "TM-Sync Configuration Example",
+  "description": "Configuration file for tm-sync CLI tool. Copy this file to tm-sync.config.json and customize for your project.",
+  "tms": {
+    "type": "zephyr-scale",
+    "baseUrl": "https://api.zephyrscale.smartbear.com/v2",
+    "apiToken": "${ZEPHYR_API_TOKEN}",
+    "projectKey": "MM",
+    "timeout": 30000,
+    "retryAttempts": 3,
+    "retryDelay": 1000
+  },
+  "testFiles": {
+    "patterns": [
+      "e2e-tests/playwright/**/*.spec.ts"
+    ],
+    "exclude": [
+      "**/node_modules/**",
+      "**/dist/**"
+    ]
+  },
+  "mappings": {
+    "directory": ".tm-sync/mappings",
+    "fileName": "{testFilePath}.mapping.json"
+  },
+  "cache": {
+    "enabled": true,
+    "directory": ".tm-sync/cache",
+    "ttl": 3600000
+  },
+  "validation": {
+    "requiredTags": ["@objective"],
+    "optionalTags": ["@precondition", "@known_issue"],
+    "enforceActionComments": true,
+    "enforceVerificationComments": true
+  },
+  "sync": {
+    "batchSize": 10,
+    "rateLimitDelay": 500,
+    "createMissingCases": true,
+    "updateExistingCases": true,
+    "conflictResolution": "prompt"
+  },
+  "reporting": {
+    "outputDir": ".tm-sync/reports",
+    "formats": ["html", "json", "markdown"],
+    "includeMetrics": true
+  },
+  "logging": {
+    "level": "info",
+    "file": ".tm-sync/logs/tm-sync.log",
+    "console": true
+  }
+}

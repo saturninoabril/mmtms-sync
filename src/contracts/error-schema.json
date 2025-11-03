@@ -1,0 +1,137 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://mattermost.com/schemas/tm-sync/error.json",
+  "title": "Error Response",
+  "description": "Schema for standardized error responses across all tm-sync commands",
+  "type": "object",
+  "required": ["errorCode", "category", "message", "suggestedFix"],
+  "properties": {
+    "errorCode": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}_\\d{3}$",
+      "description": "Unique error code in format XXX_NNN (e.g., VAL_001, TMS_404)",
+      "examples": ["VAL_001", "TMS_404", "PAR_002", "CFG_001"]
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "validation",
+        "parsing",
+        "tms_api",
+        "file_system",
+        "configuration",
+        "network",
+        "authentication",
+        "conflict"
+      ],
+      "description": "Error category for grouping and filtering"
+    },
+    "message": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable error message describing what went wrong"
+    },
+    "suggestedFix": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Actionable suggestion for how to fix the error"
+    },
+    "filePath": {
+      "type": ["string", "null"],
+      "description": "File path where error occurred (if applicable)"
+    },
+    "lineNumber": {
+      "type": ["integer", "null"],
+      "minimum": 1,
+      "description": "Line number where error occurred (if applicable)"
+    },
+    "columnNumber": {
+      "type": ["integer", "null"],
+      "minimum": 1,
+      "description": "Column number where error occurred (if applicable)"
+    },
+    "documentationUrl": {
+      "type": ["string", "null"],
+      "format": "uri",
+      "description": "URL to relevant documentation for this error"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the error occurred (ISO 8601)"
+    },
+    "context": {
+      "type": ["object", "null"],
+      "description": "Additional context data for debugging",
+      "properties": {
+        "testTitle": {
+          "type": "string",
+          "description": "Test title being processed when error occurred"
+        },
+        "testCaseId": {
+          "type": "string",
+          "description": "Test case ID related to the error"
+        },
+        "commandName": {
+          "type": "string",
+          "description": "CLI command that triggered the error"
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "errorCode": "VAL_001",
+      "category": "validation",
+      "message": "Missing @objective tag",
+      "suggestedFix": "Add /** @objective ... */ JSDoc comment before test() function",
+      "filePath": "specs/login.spec.ts",
+      "lineNumber": 42,
+      "documentationUrl": "https://docs.mattermost.com/tm-sync/validation#objective",
+      "timestamp": "2025-11-02T10:30:00Z",
+      "context": {
+        "testTitle": "user can login with valid credentials",
+        "commandName": "validate"
+      }
+    },
+    {
+      "errorCode": "TMS_404",
+      "category": "tms_api",
+      "message": "Test case MM-T12345 not found in Zephyr Scale",
+      "suggestedFix": "Run 'tm-sync create-cases' to create the test case, or verify the test case ID is correct",
+      "filePath": "specs/login.spec.ts",
+      "lineNumber": 10,
+      "documentationUrl": "https://docs.mattermost.com/tm-sync/troubleshooting#tms-missing",
+      "timestamp": "2025-11-02T10:35:00Z",
+      "context": {
+        "testTitle": "MM-T12345 user can login with valid credentials",
+        "testCaseId": "MM-T12345",
+        "commandName": "scan"
+      }
+    },
+    {
+      "errorCode": "PAR_002",
+      "category": "parsing",
+      "message": "Failed to parse TypeScript file: Unexpected token",
+      "suggestedFix": "Fix syntax errors in the test file and run 'npm run lint' to identify issues",
+      "filePath": "specs/broken.spec.ts",
+      "lineNumber": 15,
+      "columnNumber": 7,
+      "timestamp": "2025-11-02T10:40:00Z",
+      "context": {
+        "commandName": "validate"
+      }
+    },
+    {
+      "errorCode": "CFG_001",
+      "category": "configuration",
+      "message": "Configuration file tm-sync.config.json not found",
+      "suggestedFix": "Create tm-sync.config.json in project root. See example: https://docs.mattermost.com/tm-sync/configuration#example",
+      "documentationUrl": "https://docs.mattermost.com/tm-sync/configuration",
+      "timestamp": "2025-11-02T10:45:00Z",
+      "context": {
+        "commandName": "scan"
+      }
+    }
+  ]
+}

@@ -1,0 +1,209 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://mattermost.com/schemas/tm-sync/config.json",
+  "title": "TM-Sync Configuration Schema",
+  "description": "Schema for tm-sync.config.json configuration file",
+  "type": "object",
+  "properties": {
+    "tms": {
+      "type": "object",
+      "description": "Test Management System configuration",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["zephyr-scale"],
+          "description": "TMS type (currently only zephyr-scale supported)"
+        },
+        "baseUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "TMS API base URL"
+        },
+        "apiToken": {
+          "type": "string",
+          "description": "API authentication token (from environment variable)"
+        },
+        "projectKey": {
+          "type": "string",
+          "pattern": "^[A-Z]+$",
+          "description": "Project key (e.g., 'MM' for Mattermost)"
+        },
+        "timeout": {
+          "type": "number",
+          "minimum": 1000,
+          "maximum": 300000,
+          "description": "API request timeout in milliseconds"
+        },
+        "retryAttempts": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10,
+          "description": "Number of retry attempts for failed requests"
+        },
+        "retryDelay": {
+          "type": "number",
+          "minimum": 100,
+          "maximum": 10000,
+          "description": "Delay between retries in milliseconds"
+        }
+      },
+      "required": ["type", "baseUrl", "projectKey"]
+    },
+    "testFiles": {
+      "type": "object",
+      "description": "Test file patterns configuration",
+      "properties": {
+        "patterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "description": "Glob patterns for test files"
+        },
+        "exclude": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Glob patterns to exclude"
+        }
+      },
+      "required": ["patterns"]
+    },
+    "mappings": {
+      "type": "object",
+      "description": "Mapping file storage configuration",
+      "properties": {
+        "directory": {
+          "type": "string",
+          "description": "Directory to store mapping files"
+        },
+        "fileName": {
+          "type": "string",
+          "description": "Mapping file name template"
+        }
+      },
+      "required": ["directory"]
+    },
+    "cache": {
+      "type": "object",
+      "description": "Cache configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether caching is enabled"
+        },
+        "directory": {
+          "type": "string",
+          "description": "Cache directory"
+        },
+        "ttl": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Cache TTL in milliseconds"
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "description": "Validation rules configuration",
+      "properties": {
+        "requiredTags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Required JSDoc tags"
+        },
+        "optionalTags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Optional JSDoc tags"
+        },
+        "enforceActionComments": {
+          "type": "boolean",
+          "description": "Enforce action comments (// #)"
+        },
+        "enforceVerificationComments": {
+          "type": "boolean",
+          "description": "Enforce verification comments (// *)"
+        }
+      }
+    },
+    "sync": {
+      "type": "object",
+      "description": "Sync behavior configuration",
+      "properties": {
+        "batchSize": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Batch size for bulk operations"
+        },
+        "rateLimitDelay": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Delay between batches in milliseconds (rate limiting)"
+        },
+        "createMissingCases": {
+          "type": "boolean",
+          "description": "Auto-create missing test cases"
+        },
+        "updateExistingCases": {
+          "type": "boolean",
+          "description": "Auto-update existing test cases"
+        },
+        "conflictResolution": {
+          "type": "string",
+          "enum": ["prompt", "keep-local", "keep-tms", "merge", "skip"],
+          "description": "Conflict resolution strategy"
+        }
+      }
+    },
+    "reporting": {
+      "type": "object",
+      "description": "Reporting configuration",
+      "properties": {
+        "outputDir": {
+          "type": "string",
+          "description": "Output directory for reports"
+        },
+        "formats": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["html", "json", "markdown"]
+          },
+          "description": "Report formats to generate"
+        },
+        "includeMetrics": {
+          "type": "boolean",
+          "description": "Include metrics in reports"
+        }
+      }
+    },
+    "logging": {
+      "type": "object",
+      "description": "Logging configuration",
+      "properties": {
+        "level": {
+          "type": "string",
+          "enum": ["debug", "info", "warn", "error"],
+          "description": "Log level"
+        },
+        "file": {
+          "type": "string",
+          "description": "Log file path"
+        },
+        "console": {
+          "type": "boolean",
+          "description": "Also log to console"
+        }
+      }
+    }
+  },
+  "required": ["tms"]
+}

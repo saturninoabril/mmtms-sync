@@ -1,0 +1,119 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://mattermost.com/schemas/tm-sync/mapping.json",
+  "title": "Test Case Mapping Schema",
+  "description": "Schema for test case mapping files stored in .tm-sync/mappings/",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique mapping ID (UUID)"
+    },
+    "testFilePath": {
+      "type": "string",
+      "description": "Absolute path to test file"
+    },
+    "testTitle": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Test title from code"
+    },
+    "testCaseId": {
+      "type": ["string", "null"],
+      "pattern": "^[A-Z]+-T\\d+$",
+      "description": "TMS test case ID (e.g., MM-T12345)"
+    },
+    "testCaseKey": {
+      "type": ["string", "null"],
+      "description": "TMS test case key (internal TMS identifier)"
+    },
+    "syncStatus": {
+      "type": "string",
+      "enum": ["synced", "unsynced", "needs-update", "conflict", "orphaned"],
+      "description": "Current sync status"
+    },
+    "lastSyncedHash": {
+      "type": ["string", "null"],
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "SHA-256 hash of test content at last sync"
+    },
+    "lastSyncedAt": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "Timestamp of last successful sync"
+    },
+    "tmsVersion": {
+      "type": ["number", "null"],
+      "minimum": 0,
+      "description": "TMS test case version number"
+    },
+    "tmsUpdatedAt": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "Last known TMS update timestamp"
+    },
+    "conflictDetails": {
+      "type": ["object", "null"],
+      "description": "Conflict details if syncStatus is 'conflict'",
+      "properties": {
+        "localChanges": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "What changed in local test file"
+        },
+        "tmsChanges": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "What changed in TMS test case"
+        },
+        "detectedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when conflict was detected"
+        },
+        "resolutionStrategy": {
+          "type": ["string", "null"],
+          "enum": ["prompt", "keep-local", "keep-tms", "merge", "skip", null],
+          "description": "Resolution strategy"
+        }
+      },
+      "required": ["localChanges", "tmsChanges", "detectedAt"]
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Metadata for tracking",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When mapping was created"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When mapping was last updated"
+        },
+        "createdBy": {
+          "type": "string",
+          "description": "Who/what created the mapping"
+        },
+        "syncCount": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Number of sync operations"
+        },
+        "lastError": {
+          "type": ["string", "null"],
+          "description": "Last error message if sync failed"
+        }
+      },
+      "required": ["createdAt", "updatedAt", "createdBy", "syncCount"]
+    }
+  },
+  "required": ["id", "testFilePath", "testTitle", "syncStatus", "metadata"]
+}

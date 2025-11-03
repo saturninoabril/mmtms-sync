@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test:
+    name: Test & Validate
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node: [ 22, 24 ]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js ${{ matrix.node }}
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run type checking
+        run: npm run typecheck
+
+      - name: Run linter
+        run: npm run lint
+
+      - name: Run tests
+        run: npm run test
+
+      - name: Build package
+        run: npm run build
+
+      - name: Test CLI - Validate command
+        run: |
+          node dist/cli.js validate tests/fixtures/sample-valid-test.spec.ts
+
+      - name: Test CLI - Scan command
+        run: |
+          set +e
+          output=$(node dist/cli.js scan tests/fixtures 2>&1)
+          exit_code=$?
+          echo "$output"
+
+          # Verify the scan runs (exit code 1 is expected for unsynced tests)
+          if [ $exit_code -ne 1 ]; then
+            echo "ERROR: Expected exit code 1, got $exit_code"
+            exit 1
+          fi
+
+          # Verify summary output contains expected metrics
+          echo "$output" | grep -q "=== Summary ===" || { echo "ERROR: Missing summary section"; exit 1; }
+          echo "$output" | grep -q "Total tests:" || { echo "ERROR: Missing total tests"; exit 1; }
+          echo "$output" | grep -q "Synced:" || { echo "ERROR: Missing synced count"; exit 1; }
+          echo "$output" | grep -q "Unmapped:" || { echo "ERROR: Missing unmapped count"; exit 1; }
+          echo "$output" | grep -q "Sync Coverage:" || { echo "ERROR: Missing sync coverage"; exit 1; }
+          echo "$output" | grep -q "Documentation Compliance:" || { echo "ERROR: Missing documentation compliance"; exit 1; }
+
+          echo "✓ Scan command output validated successfully"
